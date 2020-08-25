@@ -1,9 +1,9 @@
 FROM node:latest
 
-RUN mkdir -p /home/src/app/node_modules && chown -R node:node /home/src/app
+RUN mkdir -p /home/node_modules && chown -R node:node /home
 
 # Create app directory
-WORKDIR /home/src/app
+WORKDIR /home
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
@@ -19,5 +19,5 @@ RUN npm install
 # Bundle app source
 COPY --chown=node:node . .
 
-EXPOSE 9444
+EXPOSE 9441
 CMD [ "node", "server.js" ]
