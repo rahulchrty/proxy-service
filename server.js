@@ -14,9 +14,7 @@ const proxyRules = new HttpProxyRules(config.proxy);
 let proxy = httpProxy.createProxyServer({});
 
 let server = http.createServer(async function(req, res) {
-  console.log ("req.url: ", req.url);
   let targetUrl = proxyRules.match(req);
-  console.log("Target: ", targetUrl);
   proxy.web(req, res, { target: targetUrl, secure: false });
 })
 
@@ -24,7 +22,6 @@ server.timeout = 1200000;
 server.listen(PROXY_PORT);
 
 app.get('/', (req, res) => {
-  console.log ("req.url", req.url);
   res.send('Hello World');
 });
 
