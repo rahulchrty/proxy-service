@@ -15,14 +15,38 @@ const proxyRules = new HttpProxyRules(config.proxy);
 let proxy = httpProxy.createProxyServer({});
 
 
+// let server = http.createServer( async function (req, res) {
+//   if (req.url.search('chatHttp') > -1) {
+//       let query = (url.parse(req.url, true)).query;
+//       if (query.data) {
+//           let data = JSON.parse(query.data);
+//           // Rewrite URL with new user informations
+//           req.url = '/servlet/chatHttp?data=' + encodeURIComponent(JSON.stringify(data));
+
+//           // If talk type is cguAccepted, redirect to Express API
+//           if (data.type.localeCompare('tosAccept') === 0) {
+//               req.url = '/servlet/chatHttp/tos';
+//           }
+//           // If talk type is guestConnect, redirect to Express API
+//           if (data.type.localeCompare('guestConnect') === 0) {
+//               req.url = '/servlet/chatHttp/guestConnect';
+//           }
+//       }
+//   }   
+//   let targetUrl = proxyRules.match(req);
+//   proxy.web(req, res, { target: targetUrl, secure: false });
+// });
+
 let server = http.createServer( async function (req, res) {
+  console.log ("Actual URL: " + req.url + " ## ");
   if (req.url.search('chatHttp') > -1) {
+      console.log ("1st IF ## ");
       let query = (url.parse(req.url, true)).query;
       if (query.data) {
+          console.log ("2nd IF ## ");
           let data = JSON.parse(query.data);
           // Rewrite URL with new user informations
           req.url = '/servlet/chatHttp?data=' + encodeURIComponent(JSON.stringify(data));
-
           // If talk type is cguAccepted, redirect to Express API
           if (data.type.localeCompare('tosAccept') === 0) {
               req.url = '/servlet/chatHttp/tos';
@@ -33,8 +57,14 @@ let server = http.createServer( async function (req, res) {
           }
       }
   }   
-  let targetUrl = proxyRules.match(req);
-  proxy.web(req, res, { target: targetUrl, secure: false });
+  let actualURL = req.url;
+  let targetURL = proxyRules.match(req);
+  console.log ("Proxy Target URL: " + targetURL + " ## ");
+  if (actualURL.search('/rest') > -1) {
+          targetURL += actualURL.replace('/rest', '');
+  }
+  console.log ("Before Request forward ## ")
+  return proxy.web(req, res, {target: targetURL, secure: false});
 });
 
 // let server = http.createServer(async function(req, res) {
